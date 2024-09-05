@@ -3,7 +3,7 @@ import enum
 from typing import Dict, Hashable, List, Optional, Annotated, TypeVar
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, EmailStr, PastDate, PlainSerializer, Strict, conset, UUID4
-from src.entity.models import Isbanned, Role, AssetType, User
+from src.entity.models import Role, AssetType, User
 from datetime import date
 
 
@@ -32,9 +32,6 @@ class TokenSchema(BaseModel):
 
 class RoleUpdateSchema(BaseModel):
     role: Role
-
-class BanUpdateSchema(BaseModel):
-    isbanned: Isbanned
 
 class UserDb(BaseModel):
     id: int = 1
@@ -74,7 +71,6 @@ class SearchUserResponse(BaseModel):
     created_at: datetime
     avatar: str
     role: Role
-    isbanned: bool
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -100,76 +96,6 @@ class UserNameResponceSchema(BaseModel):
 
 UserNameString = Annotated[UserNameResponceSchema, PlainSerializer(
     lambda x: x.username, return_type=str, when_used="unless-none")] 
-
-
-class CommentResponseSchema(BaseModel):
-    id: int
-    user_id: int
-    user: UserNameString
-    photo_id: Annotated[UUID4, Strict(False)]
-    text: str
-    created_at: datetime
-    updated_at: datetime
-
-
-class CommentNewSchema(BaseModel):
-    photo_id: Annotated[UUID4, Strict(False)]
-    text: str
-
-
-class PhotoBase(BaseModel):   
-    url: str
-    description: Optional[str] = Field(None, max_length=2200)    
-    tags: Optional[conset(str, max_length=5)] # type: ignore
-    asset_type: AssetType = AssetType.origin
-
-
-class PhotoUpdate(BaseModel):   
-    description: Optional[str] = Field(None, max_length=2200)    
-    tags: Optional[conset(str, max_length=5)] # type: ignore
-
-
-class LinkType(enum.Enum):
-    url: str = "URL"
-    qr_code: str = "QR Code"
-
-class Operation(enum.Enum):
-    read: str = "READ"
-    write: str = "WRITE"
-    create: str = "CREATE"
-    delete: str = "DELETE" 
-
-class TagBase(BaseModel):
-    name: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-# tags output format is controlled here
-
-def tags_serializer(tags: TagBase) -> str:
-    names = [f'#{tag.name}' for tag in tags]
-    return " ".join(names)    
-
-CustomStr = Annotated[List[TagBase], PlainSerializer(tags_serializer, return_type=str)]
-UUIDString = Annotated[UUID4, PlainSerializer(lambda x: str(x), return_type=str)]
-
-
-class SimpleComment(BaseModel):
-    id: int
-    user_id: int
-    user: UserNameString
-    text: str
-
-
-class PhotoResponse(PhotoBase):
-    id: Annotated[UUID4, Strict(False)]
-    created_at: datetime
-    updated_at: datetime
-    url: str
-    tags: CustomStr
-    comments: list[SimpleComment]
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 

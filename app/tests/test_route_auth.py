@@ -140,17 +140,6 @@ def test_login_wrong_email(client, new_user):
     data = response.json()
     assert data["detail"] == RETURN_MSG.email_invalid
 
-def test_login_user_banned(client, session):
-    user: User = session.query(User).filter_by(isbanned=True).first()
-    
-    data = {"username": user.email, "password": "doesnt_matter"}
-
-    response = client.post("/api/auth/login", data=data)
-
-    assert response.status_code == 401, response.text
-    data = response.json()
-    assert data["detail"] == RETURN_MSG.user_banned
-
 def test_refresh_token_user_not_exist(client):
     token = asyncio.run(auth_service.create_refresh_token({"sub": "wrong@mail.com"}))
     header = ["Authorization", f"Bearer {token}"]
@@ -191,9 +180,9 @@ def test_refresh_token_wrong(client, new_user):
     assert data["detail"] == RETURN_MSG.token_refresh_invalid
 
 def test_logout_correct(client, monkeypatch):
-    mock_dell_from_bleck_lis = MagicMock()
+    mock_dell_from_black_lis = MagicMock()
     monkeypatch.setattr(
-        "src.routes.auth.repository_users.dell_from_bleck_list", mock_dell_from_bleck_lis)
+        "src.routes.auth.repository_users.dell_from_black_list", mock_dell_from_black_lis)
     token = test_access_token
     header = ["Authorization", f"Bearer {token}"]
 

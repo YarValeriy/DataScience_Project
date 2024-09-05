@@ -8,7 +8,6 @@ class ReturnMessages:
     user_exists: str = "Account already exists"
     user_created: str = "User successfully created. Check your email for confirmation."
     user_logout: str = "Successfully logged out"
-    user_banned: str = "User is banned"
     verification_error: str = "Verification error"
     credentials_error: str = "Could not validate credentials"
     email_confirmed: str = "Email confirmed"

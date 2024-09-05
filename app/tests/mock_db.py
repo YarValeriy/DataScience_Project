@@ -34,7 +34,6 @@ USERS = [
         'confirmed': True,
         'avatar': 'http://avatar.com/first_user',
         'role': Role.user,
-        'isbanned': False
     },
     {
         'email': "second_user@myapp.com",
@@ -43,16 +42,6 @@ USERS = [
         'confirmed': True,
         'avatar': 'http://avatar.com/second_user',
         'role': Role.user,
-        'isbanned': False
-    },
-    {
-        'email': "banned_user@myapp.com",
-        'username': 'banned_user',
-        'password': 'string',
-        'confirmed': True,
-        'avatar': 'http://avatar.com/banned_user',
-        'role': Role.user,
-        'isbanned': True
     }
 ]
 

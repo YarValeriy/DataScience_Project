@@ -14,9 +14,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from sqlalchemy.orm import Session
 
-from src.entity.models import User, Role, Isbanned
+from src.entity.models import User, Role
 
-from src.schemas.schemas import BanUpdateSchema, UserUpdateSchema, RoleUpdateSchema, SearchUserResponse, AssetType
+from src.schemas.schemas import UserUpdateSchema, RoleUpdateSchema, SearchUserResponse, AssetType
 from src.services.auth import auth_service
 from src.services.photo import CloudPhotoService
 
@@ -102,120 +102,4 @@ async def update_avatar(
     url = CloudPhotoService.get_photo_url(public_id=public_id, asset=asset)
     url = CloudPhotoService.transformate_photo(url=url, asset_type=AssetType.avatar)
     user = await repositories_users.update_avatar(current_user.email, url, db)
-    return user
-
-
-@router.get(
-    "/all",
-    response_model=List[SearchUserResponse],
-    # dependencies=[Depends(allowed_get_all_users)],
-    dependencies=[Depends(admin_access)]
-)
-async def read_all_users(
-    skip: int = 0,
-    limit: int = 10,
-    db: Session = Depends(get_db),
-    cur_user: User = Depends(auth_service.get_current_user),
-):
-    """
-    The read_all_users function returns a list of users.
-    Args:
-        skip:
-        limit:
-        db:
-
-    Returns:
-
-    """
-    # if cur_user.role != Role.admin:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_403_FORBIDDEN,
-    #         detail="You do not have permission to get users",
-    #     )
-
-    users = await repositories_users.get_users(skip, limit, db)
-    return users
-
-
-@router.get("/{user_id}", response_model=SearchUserResponse)
-async def get_user(
-    user_id: int = Path(ge=1),
-    db: AsyncSession = Depends(get_db),
-    cur_user: User = Depends(auth_service.get_current_user),
-):
-    """
-    The get_user function is used to get a user.
-    Args:
-        user_id:
-        db:
-        cur_user:
-
-    Returns:
-
-    """
-    user = await repositories_users.get_user_by_id(user_id, db)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=RETURN_MSG.record_not_found
-        )
-    return user
-
-
-@router.put(
-    "/role/{user_id}",
-    response_model=SearchUserResponse,
-    dependencies=[Depends(admin_access)]
-    )
-async def change_role(
-    user_id: int,    
-    role: Role = Form(Role.user),
-    db: AsyncSession = Depends(get_db),
-    cur_user: User = Depends(auth_service.get_current_user),
-):
-    """
-    The change_role function is used to change the role of a user.
-    Args:
-        user_id:
-        body:
-        db:
-        cur_user:
-
-    Returns:
-
-    """
-    # if cur_user.role != Role.admin:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_403_FORBIDDEN,
-    #         detail="You do not have permission chandge role",
-    #     )
-    body = RoleUpdateSchema(role=role)
-    user = await repositories_users.change_role(user_id, body, db)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=RETURN_MSG.record_not_found
-        )
-    return user
-
-@router.put(
-    "/ban/{user_id}",
-    response_model=SearchUserResponse,
-    dependencies=[Depends(admin_access)]
-    )
-async def change_ban(
-    user_id: int,    
-    isbanned: Isbanned = Form(None),
-    db: AsyncSession = Depends(get_db),
-    cur_user: User = Depends(auth_service.get_current_user),
-):
-    # if cur_user.role != Role.admin:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_403_FORBIDDEN,
-    #         detail="You do not have permission to block the user",
-    #     )
-    body = BanUpdateSchema(isbanned=isbanned)
-    user = await repositories_users.change_ban(user_id, body, db)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=RETURN_MSG.record_not_found
-        )
     return user

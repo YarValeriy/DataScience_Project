@@ -5,7 +5,7 @@ from datetime import datetime
 from fastapi import File
 from pathlib import Path
 
-from src.entity.models import User, Role, Isbanned
+from src.entity.models import User, Role
 from src.services.auth import auth_service
 from src.exceptions.exceptions import RETURN_MSG
 
@@ -253,84 +253,6 @@ def test_change_role_user0(client, users, mock_redis):
     params = {"role": new_role}
     responce = client.put(
         f"api/users/role/{target.id}", data=params, headers=[header,])
-
-    assert responce.status_code == 403, responce.text
-    data = responce.json()
-    assert data["detail"] == RETURN_MSG.operation_forbiden
-
-def test_ban_admin_user_exist(client, admin, users, mock_redis):
-    user: User = admin
-    target: User = users[0]
-    isbanned = Isbanned.banned.value
-    token = user_token(user)
-    header = ["Authorization", f"Bearer {token}"]
-    params = {"isbanned": isbanned}
-    responce = client.put(
-        f"api/users/ban/{target.id}", data=params, headers=[header,])
-
-    assert responce.status_code == 200, responce.text
-    data = responce.json()
-    assert data["id"] == target.id
-    assert data["username"] == target.username
-    assert data["email"] == target.email
-    assert data["isbanned"] == True
-    assert data["isbanned"] != target.isbanned
-
-def test_unban_admin_user_exist(client, admin, users, mock_redis):
-    user: User = admin
-    target: User = users[0]
-    isbanned = Isbanned.unbanned.value
-    token = user_token(user)
-    header = ["Authorization", f"Bearer {token}"]
-    params = {"isbanned": isbanned}
-    responce = client.put(
-        f"api/users/ban/{target.id}", data=params, headers=[header,])
-
-    assert responce.status_code == 200, responce.text
-    data = responce.json()
-    assert data["id"] == target.id
-    assert data["username"] == target.username
-    assert data["email"] == target.email
-    assert data["isbanned"] == False
-    assert data["isbanned"] != target.isbanned
-
-def test_ban_admin_user_not_exist(client, admin, users, mock_redis):
-    user: User = admin
-    target: User = User(id=1000)
-    isbanned = Isbanned.banned.value
-    token = user_token(user)
-    header = ["Authorization", f"Bearer {token}"]
-    params = {"isbanned": isbanned}
-    responce = client.put(
-        f"api/users/ban/{target.id}", data=params, headers=[header,])
-
-    assert responce.status_code == 404, responce.text
-    data = responce.json()
-    assert data["detail"] == RETURN_MSG.record_not_found
-
-def test_ban_moderator_user_exist(client, moderator, users, mock_redis):
-    user: User = moderator
-    target: User = users[0]
-    isbanned = Isbanned.banned.value
-    token = user_token(user)
-    header = ["Authorization", f"Bearer {token}"]
-    params = [("isbanned", isbanned), ]
-    responce = client.put(
-        f"api/users/ban/{target.id}", params=params, headers=[header,])
-
-    assert responce.status_code == 403, responce.text
-    data = responce.json()
-    assert data["detail"] == RETURN_MSG.operation_forbiden
-
-def test_ban_user0_user_exist(client, users, mock_redis):
-    user: User = users[0]
-    target: User = users[1]
-    isbanned = Isbanned.banned.value
-    token = user_token(user)
-    header = ["Authorization", f"Bearer {token}"]
-    params = [("isbanned", isbanned), ]
-    responce = client.put(
-        f"api/users/ban/{target.id}", params=params, headers=[header,])
 
     assert responce.status_code == 403, responce.text
     data = responce.json()

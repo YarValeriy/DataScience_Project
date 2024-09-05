@@ -14,7 +14,7 @@ This project is a FastAPI application that allows users to share photos and comm
 - Redis for caching and rate limiting
 - PostgreSQL database for data storage
 - Email verification and password reset
-- User banning and role management
+- Role management
 
 ## Getting Started
 
@@ -81,10 +81,6 @@ python main.py
 - **GET /api/users/me**: Get the current user's profile.
 - **PUT /api/users/**: Update the current user's profile.
 - **PUT /api/users/avatar**: Update the current user's avatar.
-- **GET /api/users/all**: Get a list of all users (admin only).
-- **GET /api/users/{user_id}**: Get a specific user by their ID.
-- **PUT /api/users/role/{user_id}**: Change a user's role (admin only).
-- **PUT /api/users/ban/{user_id}**: Ban or unban a user (admin only).
 
 ## Developed by:
 

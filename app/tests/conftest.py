@@ -64,12 +64,6 @@ def admin(session):
     user = session.query(User).filter_by(role=Role.admin).first()
     return user
 
-
-@pytest.fixture(scope='module')
-def photos(session):
-    photos = session.query(Photo).all()
-    return photos
-
 @pytest.fixture(scope='function')
 def mock_redis(monkeypatch):
     monkeypatch.setattr(
