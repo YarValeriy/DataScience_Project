@@ -58,24 +58,6 @@ python main.py
 - **POST /api/auth/refresh_token**: Refresh the access token.
 - **POST /api/auth/logout**: Log out the current user.
 
-### Photos
-
-- **GET /api/photos/**: Get a list of photos.
-- **GET /api/photos/{photo_id}**: Get a specific photo by its ID.
-- **GET /api/photos/link/{photo_id}**: Get a link or QR code for a specific photo.
-- **POST /api/photos/**: Upload a new photo.
-- **POST /api/photos/transform/{photo_id}**: Transform a photo (e.g., apply filters).
-- **DELETE /api/photos/{photo_id}**: Delete a specific photo.
-- **PUT /api/photos/{photo_id}**: Update a specific photo's details.
-
-### Comments
-
-- **POST /api/comments/{photo_id}**: Add a new comment to a photo.
-- **GET /api/comments/{photo_id}**: Get a list of comments for a specific photo.
-- **GET /api/comments/users/{user_id}**: Get a list of comments by a specific user.
-- **GET /api/comments/users/{user_id}**: Get a list of comments by a specific user for a specific photo.
-- **DELETE /api/comments/record/{comment_id}**: Delete a specific comment.
-
 ### Users
 
 - **GET /api/users/me**: Get the current user's profile.
