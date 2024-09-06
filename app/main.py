@@ -17,7 +17,7 @@ from fastapi_limiter import FastAPILimiter
 from fastapi.middleware.cors import CORSMiddleware
 from src.conf.config import settings
 from src.database.db import engine, SessionLocal, redis_client_async, get_db
-from src.routes import auth
+from src.routes import auth, pdf
 
 
 logger = logging.getLogger(uvicorn.logging.__name__)
@@ -51,6 +51,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix='/api')
+app.include_router(pdf.router, prefix='/api')
 # !app.include_router(photos.router, prefix="/api")
 # !app.include_router(users.router, prefix='/api')
 # !app.include_router(comments.router, prefix='/api')
