@@ -5,12 +5,8 @@ This project is a FastAPI application that allows users to share photos and comm
 ## Features
 
 - User registration and authentication with JWT tokens
-- Photo uploading and transformation (greyscale, delete background, oil paint, sepia, outline)
-- Commenting on photos
-- QR code generation for photo URLs
-- User roles (admin, moderator, user) with different access levels
+- User roles (admin, user) with different access levels
 - Rate limiting to prevent abuse
-- Cloudinary integration for photo storage
 - Redis for caching and rate limiting
 - PostgreSQL database for data storage
 - Email verification and password reset
