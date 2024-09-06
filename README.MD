@@ -1,4 +1,4 @@
-# FastAPI PhotoShare Project
+# FastAPI Data-Science Project
 
 This project is a FastAPI application that allows users to share photos and comments on them. It includes user authentication, photo uploading, commenting, and role-based access control.
 

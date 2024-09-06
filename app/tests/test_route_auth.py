@@ -181,8 +181,6 @@ def test_refresh_token_wrong(client, new_user):
 
 def test_logout_correct(client, monkeypatch):
     mock_dell_from_black_lis = MagicMock()
-    monkeypatch.setattr(
-        "src.routes.auth.repository_users.dell_from_black_list", mock_dell_from_black_lis)
     token = test_access_token
     header = ["Authorization", f"Bearer {token}"]
 

@@ -203,7 +203,6 @@ async def logout(
         user.refresh_token = None
         db.commit()
         expired = await auth_service.get_exp_from_token(token)
-        background_tasks.add_task(repository_users.dell_from_black_list, expired, token, db)
         return {"logout": RETURN_MSG.user_logout}
     except:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=RETURN_MSG.user_logout)
