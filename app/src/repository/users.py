@@ -80,9 +80,6 @@ async def update_token(user: User, token: str | None, db: Session) -> None:
     user.refresh_token = token
     db.commit()
 
-
-BLACKLISTED_TOKENS = "blacklisted_tokens"
-
 r = redis.Redis(
     host=settings.redis_host,
     port=settings.redis_port,
