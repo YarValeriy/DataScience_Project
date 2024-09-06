@@ -10,7 +10,6 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import UploadFile
 from src.conf.config import settings
-from src.entity.models import BlacklistToken
 from time import time
 from asyncio import sleep
 
@@ -91,16 +90,3 @@ r = redis.Redis(
     encoding="utf-8",
     decode_responses=True,
 )
-
-
-# async def is_token_blacklisted(token: str) -> bool:
-#     return await r.sismember(BLACKLISTED_TOKENS, token)
-
-
-async def dell_from_black_list(expired, token: str, db: AsyncSession) -> None:
-    bl_token = db.query(BlacklistToken).filter(BlacklistToken.token == token).first()
-    time_now = time()
-    time_for_sleep = expired - time_now
-    await sleep(time_for_sleep)
-    db.delete(bl_token)
-    db.commit()

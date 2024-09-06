@@ -39,10 +39,3 @@ class User(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     role = Column('role', Enum(Role), default=Role.user)
     confirmed = Column(Boolean, default=False)
-
-
-class BlacklistToken(Base):
-    __tablename__ = 'blacklist_tokens'
-    id = Column(Integer, primary_key=True)
-    token = Column(String(500), unique=True, nullable=False)
-    blacklisted_on = Column(DateTime, default=func.now())
