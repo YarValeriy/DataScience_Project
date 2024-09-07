@@ -29,6 +29,7 @@ aioredis = "^2.0.1"
 qrcode = "^7.4.2"
 redis-lru = "^0.1.2"
 pdfplumber = "^0.11.4"
+transformers = "^4.44.2"
 
 
 [tool.poetry.group.dev.dependencies]

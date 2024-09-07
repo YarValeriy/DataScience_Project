@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 
 import uvicorn.logging
 
-from fastapi_limiter import FastAPILimiter
+# from fastapi_limiter import FastAPILimiter
 from fastapi.middleware.cors import CORSMiddleware
 from src.conf.config import settings
 from src.database.db import engine, SessionLocal, get_db
@@ -33,7 +33,7 @@ async def lifespan(test: FastAPI):
     #shutdown logic goes here    
     SessionLocal.close_all()
     engine.dispose()
-    await FastAPILimiter.close()
+    # await FastAPILimiter.close()
     logger.info("Good bye, Mr. Anderson")
 
 
