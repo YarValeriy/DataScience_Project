@@ -1,15 +1,13 @@
 from libgravatar import Gravatar
 from sqlalchemy.orm import Session
-from typing import List
-from datetime import datetime
+# from typing import List
+# from datetime import datetime
 from src.entity.models import User
 from src.schemas.schemas import UserSchema, UserUpdateSchema, RoleUpdateSchema
-import redis.asyncio as redis
 from sqlalchemy.future import select
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import UploadFile
-from src.conf.config import settings
+# from fastapi import UploadFile
 from time import time
 from asyncio import sleep
 
@@ -62,14 +60,6 @@ async def update_user(user_id: int, body: UserUpdateSchema, db: Session):
     return user
 
 
-async def update_avatar(email: str, url: str, db: Session):
-    user = await get_user_by_email(email, db)
-    user.avatar = url
-    db.commit()
-    db.refresh(user)
-    return user
-
-
 async def confirmed_email(email: str, db: Session) -> None:
     user = await get_user_by_email(email, db)
     user.confirmed = True
@@ -79,11 +69,3 @@ async def confirmed_email(email: str, db: Session) -> None:
 async def update_token(user: User, token: str | None, db: Session) -> None:
     user.refresh_token = token
     db.commit()
-
-r = redis.Redis(
-    host=settings.redis_host,
-    port=settings.redis_port,
-    db=0,
-    encoding="utf-8",
-    decode_responses=True,
-)

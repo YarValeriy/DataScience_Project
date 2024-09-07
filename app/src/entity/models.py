@@ -1,28 +1,15 @@
-import uuid
 import enum
-from sqlalchemy.orm import relationship, Mapped, mapped_column, backref, declarative_base
-from sqlalchemy.sql.schema import ForeignKey
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql.sqltypes import DateTime
-from sqlalchemy import UUID, Column, Integer, LargeBinary, String, Date, Boolean, func
-from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy import Column, Integer, String, Date, Boolean, func
 from sqlalchemy import Enum
 
 Base = declarative_base()
 
 class Role(enum.Enum):
     admin: str = "admin"
-    moderator: str = "moderator"
+    # moderator: str = "moderator"
     user: str = "user"
-
-
-class AssetType(enum.Enum):
-    origin: str = 'origin'
-    avatar: str = 'avatar'
-    greyscale: str = 'greyscale'
-    delete_bg: str = 'delete_bg'
-    oil_paint: str = 'oil_paint'
-    sepia: str = 'sepia'
-    outline: str = 'outline'
 
 
 class User(Base):

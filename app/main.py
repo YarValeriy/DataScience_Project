@@ -11,13 +11,12 @@ from fastapi import Depends, FastAPI, HTTPException
 from contextlib import asynccontextmanager
 
 import uvicorn.logging
-import redis.asyncio as redis
 
 from fastapi_limiter import FastAPILimiter
 from fastapi.middleware.cors import CORSMiddleware
 from src.conf.config import settings
-from src.database.db import engine, SessionLocal, redis_client_async, get_db
-from src.routes import auth, pdf
+from src.database.db import engine, SessionLocal, get_db
+from src.routes import auth, users, pdf
 
 
 logger = logging.getLogger(uvicorn.logging.__name__)
@@ -30,12 +29,10 @@ async def lifespan(test: FastAPI):
     #startup initialization goes here    
     logger.info("Knock-knock...")
     logger.info("Uvicorn has you...")
-    await FastAPILimiter.init(redis_client_async)
     yield
     #shutdown logic goes here    
     SessionLocal.close_all()
     engine.dispose()
-    await redis_client_async.close(True)
     await FastAPILimiter.close()
     logger.info("Good bye, Mr. Anderson")
 
@@ -52,9 +49,8 @@ app.add_middleware(
 
 app.include_router(auth.router, prefix='/api')
 app.include_router(pdf.router, prefix='/api')
-# !app.include_router(photos.router, prefix="/api")
-# !app.include_router(users.router, prefix='/api')
-# !app.include_router(comments.router, prefix='/api')
+app.include_router(users.router, prefix='/api')
+
 
 @app.get("/")
 def read_root():
@@ -86,7 +82,7 @@ def healthchecker(db: Session = Depends(get_db)) -> dict:
 
 if __name__ == '__main__':
     try:
-        uvicorn.run("main:app", host='0.0.0.0', port=8000, reload=True)
+        uvicorn.run("main:app", host='127.0.0.1', port=8000, reload=True)
     except KeyboardInterrupt:
         os.kill(os.getpid(), signal.SIGBREAK)
         os.kill(os.getpid(), signal.SIGTERM) 

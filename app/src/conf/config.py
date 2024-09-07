@@ -1,4 +1,3 @@
-import qrcode
 from pathlib import Path
 from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
@@ -15,20 +14,9 @@ class Settings(BaseSettings):
     mail_from_name: str
     mail_port: int
     mail_server: str
-    redis_host: str
-    redis_port: int
     cors_origins: str
-    rate_limiter_times: int
-    rate_limiter_seconds: int
-    cloudinary_name: str
-    cloudinary_api_key: str
-    cloudinary_api_secret: str
-    cloudinary_app_prefix: str = "PhotoShare"
-    # qr_error_correction: int = qrcode.constants.ERROR_CORRECT_M
-    # qr_box_size: int = 7
-    # qr_border: int = 4
-    # qr_fill_color: str = "black"
-    # qr_back_color: str = "white"
+    # rate_limiter_times: int
+    # rate_limiter_seconds: int
 
     model_config = ConfigDict(extra='ignore', env_file=env_file if env_file.exists() else None, env_file_encoding = "utf-8")
 

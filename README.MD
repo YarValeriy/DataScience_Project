@@ -1,12 +1,11 @@
 # FastAPI Data-Science Project
 
-This project is a FastAPI application that allows users to share photos and comments on them. It includes user authentication, photo uploading, commenting, and role-based access control.
+This project is a FastAPI application that allows users to download PDF documents and make queries from that document.
 
 ## Features
 
 - User registration and authentication with JWT tokens
 - User roles (admin, user) with different access levels
-- Rate limiting to prevent abuse
 - Redis for caching and rate limiting
 - PostgreSQL database for data storage
 - Email verification and password reset
@@ -31,19 +30,27 @@ poetry update
 
 3. Please rename `.env.example` file to `.env` and set up the environment variables in it.
 
-4. Populate database schema:
+4. docker-compose up --build -d
+
+for next steps:
+
+```bash
+cd app
+```
+
+5. Populate database schema:
 
 ```bash
 alembic upgrade head
 ```
 
-5. Run the application:
+6. Run the application:
 
 ```bash
 python main.py
 ```
 
-6. Access the API documentation at `http://localhost:8000/docs`.
+7. Access the API documentation at `http://localhost:8000/docs`.
 
 ## API Endpoints
 
@@ -65,15 +72,16 @@ python main.py
 ### PyMagic team:
 
 - [Roman Hnatiak](https://github.com/Hnatiak)
-- [Yuliia Chorna](https://github.com/YuliiaChorna1)
 - [Gennadiy Shpak](https://github.com/gyshpak)
-- [Andrii Demenin](https://github.com/demagoit)
 - [Olena Polkhova](https://github.com/ElenaPolkhovaS)
+- 
+- 
+- 
 
 ## FOR DEVS:
 
-HERE IS FRONTEND REPO: https://github.com/gyshpak/PhotoShare-Python-front
+HERE IS FRONTEND REPO: 
 
-HERE IS FRONTEND RENDER: https://photoshare-python-front.onrender.com/
+HERE IS FRONTEND RENDER: 
 
 &#xa0;

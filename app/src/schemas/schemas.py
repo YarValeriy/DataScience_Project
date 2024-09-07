@@ -1,9 +1,9 @@
-import uuid
-import enum
+# import uuid
+# import enum
 from typing import Dict, Hashable, List, Optional, Annotated, TypeVar
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, EmailStr, PastDate, PlainSerializer, Strict, conset, UUID4
-from src.entity.models import Role, AssetType, User
+from src.entity.models import Role #User #AssetType
 from datetime import date
 
 
@@ -11,13 +11,6 @@ class UserSchema(BaseModel):
     username: str = Field(min_length=3, max_length=50)
     email: EmailStr
     password: str = Field(min_length=5, max_length=50)
-
-# class UserModel(BaseModel):
-#     username: str = Field(min_length=2, max_length=16)
-#     email: str
-#     phone: str = Field(min_length=10, max_length=13)
-#     birthday: date
-#     password: str = Field(min_length=4, max_length=10)
 
 
 class UserUpdateSchema(BaseModel):
@@ -44,17 +37,6 @@ class UserDb(BaseModel):
     role: Role
 
     model_config = ConfigDict(from_attributes=True)
-
-# class UserDb(BaseModel):
-#     id: int
-#     username: str
-#     email: str
-#     created_at: datetime
-#     avatar: str
-#     role: Role
-#
-#     class Config:
-#         from_attributes = True
 
 
 class UserResponse(BaseModel):
@@ -97,12 +79,3 @@ class UserNameResponceSchema(BaseModel):
 UserNameString = Annotated[UserNameResponceSchema, PlainSerializer(
     lambda x: x.username, return_type=str, when_used="unless-none")] 
 
-
-
-class AssetType(enum.Enum):
-    avatar: str = 'avatar'
-    greyscale: str = 'greyscale'
-    delete_bg: str = 'delete_bg'
-    oil_paint: str = 'oil_paint'
-    sepia: str = 'sepia'
-    outline: str = 'outline'
