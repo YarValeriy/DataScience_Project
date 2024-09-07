@@ -1,5 +1,9 @@
 from fastapi import APIRouter, File, UploadFile, HTTPException
 from src.pdf_processing import extract_text_from_pdf
+from src.services.auth import auth_service
+from src.services.model import process_text
+from src.entity.models import User
+from fastapi import APIRouter, Form, HTTPException, Depends
 import os
 
 router = APIRouter(prefix="/pdf",tags=["PDF Upload"])
@@ -32,3 +36,16 @@ async def upload_pdf(file: UploadFile = File(...)):
     finally:
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
+
+
+
+@router.post("/upload_new_pdf/")
+async def echo_text(
+    current_user: User = Depends(auth_service.get_current_user),
+    # request: Request,
+    text: str = Form(...),
+    description: str = Form(...),
+):
+
+    ansver_text = process_text(text, description)
+    return ansver_text
