@@ -1,3 +1,5 @@
+import logging
+
 from typing import Optional
 
 from jose import JWTError, jwt
@@ -13,6 +15,8 @@ from src.conf.config import settings
 from src.database.db import get_db
 from src.repository import users as repository_users
 from src.exceptions.exceptions import RETURN_MSG
+
+logger = logging.getLogger(__name__)
 
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -109,5 +113,8 @@ class Auth:
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=RETURN_MSG.token_invalid,
             )
+
+    async def log_user_deletion(self, user_email: str):
+        logger.info(f"User account deleted: {user_email}")
 
 auth_service = Auth()

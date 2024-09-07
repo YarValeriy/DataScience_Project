@@ -69,3 +69,11 @@ async def confirmed_email(email: str, db: Session) -> None:
 async def update_token(user: User, token: str | None, db: Session) -> None:
     user.refresh_token = token
     db.commit()
+
+async def delete_user(user_id: int, db: Session):
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        db.delete(user)
+        db.commit()
+        return True
+    return False

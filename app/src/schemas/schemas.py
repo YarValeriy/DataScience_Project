@@ -79,3 +79,5 @@ class UserNameResponceSchema(BaseModel):
 UserNameString = Annotated[UserNameResponceSchema, PlainSerializer(
     lambda x: x.username, return_type=str, when_used="unless-none")] 
 
+class UserDeleteSchema(BaseModel):
+    password: str
