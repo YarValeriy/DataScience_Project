@@ -47,5 +47,5 @@ async def echo_text(
     description: str = Form(...),
 ):
 
-    ansver_text = process_text(text, description)
-    return ansver_text
+    answer_text = process_text(text, description)
+    return answer_text
