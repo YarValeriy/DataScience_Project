@@ -10,7 +10,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
 
 # Створюємо pipeline для обробки
-qa_model = pipeline("question-answering", model=model.to("cuda"), tokenizer=tokenizer, device=device)
+qa_model = pipeline("question-answering", model=model, tokenizer=tokenizer, device=device)
 
 
 
