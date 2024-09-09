@@ -4,7 +4,7 @@ from typing import Dict, Hashable, List, Optional, Annotated, TypeVar
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, EmailStr, PastDate, PlainSerializer, Strict, conset, UUID4
 from src.entity.models import Role #User #AssetType
-from datetime import date
+from datetime import date, datetime
 
 
 class UserSchema(BaseModel):
@@ -81,3 +81,24 @@ UserNameString = Annotated[UserNameResponceSchema, PlainSerializer(
 
 class UserDeleteSchema(BaseModel):
     password: str
+
+
+# Базова схема для історії запитів
+class QueryHistoryBase(BaseModel):
+    document_id: Optional[int] = None
+    query: str
+    response: str
+
+
+# Схема для створення історії запиту
+class QueryHistoryCreate(QueryHistoryBase):
+    pass
+
+
+# Схема для відповіді з історією запиту
+class QueryHistoryResponse(QueryHistoryBase):
+    id: int
+    timestamp: datetime
+
+    class Config:
+        orm_mode = True

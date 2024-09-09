@@ -16,8 +16,7 @@ This project is a FastAPI application that allows users to download PDF document
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/fastapi-photo-share.git
-cd fastapi-photo-share
+https://github.com/Hnatiak/DataScienceProject-back
 ```
 
 2. Install the dependencies:
