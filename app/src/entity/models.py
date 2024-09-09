@@ -1,15 +1,12 @@
-import enum
 from sqlalchemy.orm import declarative_base, relationship
-from sqlalchemy.sql.sqltypes import DateTime
-from sqlalchemy import Column, Integer, String, Date, Boolean, ForeignKey, DateTime, func
-from sqlalchemy import Enum
+from sqlalchemy import Column, Integer, String, Date, Boolean, ForeignKey, Text, DateTime, Enum, func
 from datetime import datetime
+import enum
 
 Base = declarative_base()
 
 class Role(enum.Enum):
     admin: str = "admin"
-    # moderator: str = "moderator"
     user: str = "user"
 
 
@@ -25,21 +22,36 @@ class User(Base):
     avatar = Column(String(255), nullable=True)
     refresh_token = Column(String(255), nullable=True)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
-    role = Column('role', Enum(Role), default=Role.user)
+    role = Column(Enum(Role), default=Role.user)
     confirmed = Column(Boolean, default=False)
 
-    # Зворотний зв'язок до QueryHistory
     queries = relationship("QueryHistory", back_populates="user")
+    documents = relationship("DocumentText", back_populates="user")
+
+
+class DocumentText(Base):
+    __tablename__ = "document_texts"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    filename = Column(String(255), nullable=False)
+    text = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=func.now())
+
+    user = relationship("User", back_populates="documents")
 
 
 class QueryHistory(Base):
     __tablename__ = "query_history"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))  # ForeignKey на таблицю користувачів
-    document_id = Column(Integer)  # Якщо потрібна прив'язка до документа
+    # Зв'язок з таблицею користувачів
+    user_id = Column(Integer, ForeignKey("users.id"))
+    document_id = Column(Integer, ForeignKey("document_texts.id"), nullable=True)  # Зв'язок з документами
     query = Column(String, nullable=False)  # Запит користувача
     response = Column(String, nullable=False)  # Відповідь LLM
     timestamp = Column(DateTime, default=datetime.utcnow)  # Час запиту
-    
-    user = relationship("User", back_populates="queries")  # Відношення до моделі користувача
+
+    # Відношення до таблиці користувачів та документів
+    user = relationship("User", back_populates="queries")
+    document = relationship("DocumentText")

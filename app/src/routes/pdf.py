@@ -1,16 +1,21 @@
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, Form
+from sqlalchemy.orm import Session
 from src.pdf_processing import extract_text_from_pdf
+from src.database.db import get_db
+from src.entity.models import DocumentText, User
 from src.services.auth import auth_service
-from src.services.model import process_text
-from src.entity.models import User
-from fastapi import APIRouter, Form, HTTPException, Depends
 import os
 
 router = APIRouter(prefix="/pdf",tags=["PDF Upload"])
 
 
 @router.post("/upload-pdf/")
-async def upload_pdf(file: UploadFile = File(...)):
+async def upload_pdf(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+
     if not file.filename.endswith('.pdf'):
         raise HTTPException(
             status_code=400, detail="Only PDF files are allowed")
@@ -26,26 +31,15 @@ async def upload_pdf(file: UploadFile = File(...)):
             raise ValueError(
                 "Extracted text is empty. Please check the PDF content.")
 
-        return {
-            "message": "PDF processed successfully",
-            "text_sample": text[:2000]
-        }
+        document = DocumentText(user_id=current_user.id,
+                                filename=file.filename, text=text)
+        db.add(document)
+        db.commit()
+
+        return {"message": "PDF processed and saved successfully", "text_sample": text[:2000]}
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error processing PDF: {str(e)}")
     finally:
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
-
-
-
-@router.post("/upload_new_pdf/")
-async def echo_text(
-    current_user: User = Depends(auth_service.get_current_user),
-    # request: Request,
-    text: str = Form(...),
-    description: str = Form(...),
-):
-
-    answer_text = process_text(text, description)
-    return answer_text
