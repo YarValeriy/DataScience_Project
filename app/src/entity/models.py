@@ -65,10 +65,10 @@ class Document(Base):
     # Зв'язок з таблицею користувачів
     # user_id = Column(Integer, ForeignKey("users.id"))
     # document_id = Column(Integer, ForeignKey("document_texts.id"), nullable=True)  # Зв'язок з документами
-    query = Column(String, nullable=False)  # Запит користувача
-    response = Column(String, nullable=False)  # Відповідь LLM
-    timestamp = Column(DateTime, default=datetime.utcnow)  # Час запиту
+    # query = Column(String, nullable=False)  # Запит користувача
+    # response = Column(String, nullable=False)  # Відповідь LLM
+    # timestamp = Column(DateTime, default=datetime.utcnow)  # Час запиту
 
     # Відношення до таблиці користувачів та документів
     # user = relationship("User", back_populates="queries")
-    document = relationship("DocumentText")
+    # document = relationship("DocumentText")
