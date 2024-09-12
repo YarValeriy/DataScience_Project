@@ -1,4 +1,4 @@
-"""Photo models added to db
+"""Photo models_old added to db
 
 Revision ID: 2b0077df03df
 Revises: 4578cd9ba148

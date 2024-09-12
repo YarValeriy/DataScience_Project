@@ -17,6 +17,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.conf.config import settings
 from src.database.db import engine, SessionLocal, get_db
 from src.routes import auth, users, pdf, query_history
+from src.routes.document_routes import router as document_router
+# from src.routes.question_routes import router as question_router
+# from src.routes.history_routes import router as history_router
 
 
 logger = logging.getLogger(uvicorn.logging.__name__)
@@ -51,6 +54,9 @@ app.include_router(auth.router, prefix='/api')
 app.include_router(pdf.router, prefix='/api')
 app.include_router(users.router, prefix='/api')
 app.include_router(query_history.router, prefix='/api')
+app.include_router(document_router, prefix="/documents", tags=["documents"])        #VY
+# app.include_router(question_router, prefix="/questions", tags=["questions"])        #VY
+# app.include_router(history_router, prefix="/history", tags=["history"])     #VY
 
 
 @app.get("/")

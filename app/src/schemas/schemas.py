@@ -102,3 +102,35 @@ class QueryHistoryResponse(QueryHistoryBase):
 
     class Config:
         orm_mode = True
+
+# Base schema for Document
+class DocumentBase(BaseModel):
+    title: str = Field(..., max_length=255)
+    author: Optional[str] = Field(None, max_length=255)
+    comment: Optional[str] = None
+    original_file_name: str = Field(..., max_length=255)
+
+# Schema for creating a Document
+class DocumentCreate(DocumentBase):
+    status: Optional[str] = Field("processing", max_length=50)
+
+# Schema for updating a Document
+class DocumentUpdate(BaseModel):
+    title: Optional[str] = Field(None, max_length=255)
+    author: Optional[str] = Field(None, max_length=255)
+    comment: Optional[str] = None
+    status: Optional[str] = Field(None, max_length=50)
+
+# Schema representing a Document in the database
+class DocumentInDB(DocumentBase):
+    document_id: int
+    user_id: Optional[int]
+    upload_date: datetime
+
+    class Config:
+        orm_mode = True
+
+# Schema for returning a Document response
+class DocumentResponse(DocumentInDB):
+    pass
+
