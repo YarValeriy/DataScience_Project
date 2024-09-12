@@ -18,6 +18,23 @@ class ContextType(str, Enum):
     FULL_TEXT = "full_text"
     SUMMARY = "summary"
 
+class SearchScopeScope(str, Enum):
+    ALL = "all_docs"
+    LISTED = "listed_docs"
+
+def validate_search_scope(
+    search_option: SearchScopeScope,
+    search_scope: Optional[List[int]] = None
+) -> Optional[List[int]]:
+    """
+    Validator function to check if search_scope is provided when required.
+    """
+    if search_option == SearchScopeScope.LISTED and not search_scope:
+        raise HTTPException(
+            status_code=400, detail="Please provide a list of document IDs for search scope."
+        )
+    return search_scope
+
 router = APIRouter()
 
 @router.post("/documents/")
@@ -106,9 +123,14 @@ async def convert_text_to_vector(
 @router.post("/generate-summary")
 async def generate_document_summary(
     document_id: int = Query(..., description="ID of the document to summarize"),
+    max_length: int = Query(100, description="Maximum length per 1024 tokens of the document"),
+    min_length: int = Query(30, description="Minimum length per 1024 tokens of the document"),
     db: AsyncSession = Depends(get_db)
 ):
     """Generates and updates the summary and vector for a given document."""
+    if max_length <= min_length:
+        raise ValueError("max_length must be greater than min_length.")
+
     try:
         # Fetch the document by ID
         document = await get_document_by_id(document_id, db)
@@ -118,9 +140,8 @@ async def generate_document_summary(
         # Clean the input text
         cleaned_text = clean_text(document.full_text)
 
-
         # Generate summary and vector for the provided text
-        summary = generate_summary(cleaned_text)
+        summary = generate_summary(cleaned_text, max_length=max_length, min_length=min_length)
         summary_vector = vectorize_text_llm(summary)  # Returns a list
 
         # Update the document with the summary
@@ -148,6 +169,7 @@ async def generate_document_summary(
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
 
 
+
 @router.post("/search-document/")
 async def search_document_endpoint(query_text: str, db: AsyncSession = Depends(get_db)):
     try:
@@ -168,32 +190,23 @@ async def search_document_endpoint(query_text: str, db: AsyncSession = Depends(g
 @router.post("/answer-question/")
 async def answer_question(
     question: str,
-    search_scope: Optional[List[int]] = None,
-    context_type: str = "full_text",
+    search_option: SearchScopeScope = SearchScopeScope.ALL,
+    search_scope: Optional[List[int]] = Depends(validate_search_scope),
+    context_type: ContextType = ContextType.FULL_TEXT,
     db: AsyncSession = Depends(get_db)
 ):
     """
     Request answer to question based on collected documents.
-    Example request:
-{
-  "question": "What is HTML?",
-  "search_scope": null,  # Correctly representing 'None' in JSON
-  "context_type": "full_text"
-}
-{
-  "question": "What is HTML?",
-  "search_scope": [50, 51],  # List of document IDs
-  "context_type": "full_text"
-}
-
     """
-   # If search_scope is None, use an empty list
-   #  search_scope = search_scope if search_scope is not None else []
-
     try:
+        # Determine whether to search the entire database or a list of specific documents
+        if search_option == SearchScopeScope.ALL:
+            search_scope = None  # No document restriction, search all documents
+
         # Fetch relevant documents using the repository method
         relevant_documents = await fetch_relevant_documents(query_text=question, search_scope=search_scope, db=db)
 
+        # Handle case where no relevant documents are found
         if not relevant_documents:
             return {"relevant_documents": [], "answer": "No relevant context found to answer the question."}
 
@@ -206,7 +219,8 @@ async def answer_question(
         return {"relevant_documents": relevant_documents, "answer": answer}
 
     except Exception as e:
+        logging.error(f"Error during answering question: {str(e)}")
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-
-
+                            
+                            
 
