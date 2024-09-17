@@ -1,7 +1,7 @@
 from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
 from typing import Tuple, List, Dict
 import torch
-from src.services.vector_service import vectorize_text_llm
+from src.services.vector_service import vectorize_text_llm, extract_keywords
 import re
 import string
 import nltk
@@ -60,12 +60,23 @@ def generate_summary(cleaned_text: str, src_lang: str = "uk", max_length: int = 
 
         # Combine all summaries into one
         full_summary = " ".join(summaries)
+        full_summary = post_process_summary(full_summary)
 
 
         return full_summary
 
     except Exception as e:
         raise ValueError(f"Failed to generate summary: {e}")
+
+
+def post_process_summary(summary: str) -> str:
+    """
+    Cleans up redundant or irrelevant information from the summary.
+    """
+    # Remove extra spaces, numbers, and repetitive phrases
+    processed_summary = re.sub(r'\s+', ' ', summary)  # Remove extra spaces
+    processed_summary = re.sub(r'\b\d+\b', '', processed_summary)  # Remove numbers
+    return processed_summary.strip()
 
 
 def clean_text(text: str, lang: str = "en") -> str:
@@ -100,7 +111,7 @@ def clean_text(text: str, lang: str = "en") -> str:
 
 def generate_answer_based_on_context(question: str, context_text: str) -> str:
     """
-    Generate an answer based on the provided context.
+    Generate an answer based on the provided context with post-processing.
 
     Args:
         question (str): The question to be answered.
@@ -120,13 +131,100 @@ def generate_answer_based_on_context(question: str, context_text: str) -> str:
         # Tokenize input
         inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=1024, truncation=True)
 
-        # Generate the answer
-        outputs = model.generate(inputs, max_length=150, num_return_sequences=1)
+        # Generate the answer with constraints
+        outputs = model.generate(
+            inputs,
+            max_length=150,
+            num_return_sequences=1,
+            repetition_penalty=2.0,  # Reduce redundancy
+            num_beams=4              # Improve diversity
+        )
 
         # Decode the output to get the answer in text form
         answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-        return answer
+        # Post-process answer: remove boilerplate and irrelevant sentences
+        processed_answer = post_process_answer(answer)
+
+        return processed_answer
 
     except Exception as e:
         raise ValueError(f"Failed to generate answer: {e}")
+
+def post_process_answer(answer: str) -> str:
+    """
+    Refine the generated answer by removing irrelevant parts.
+
+    Args:
+        answer (str): The raw generated answer.
+
+    Returns:
+        str: Processed answer.
+    """
+    # Simple post-processing: remove non-informative or redundant text
+    sentences = answer.split(". ")
+    important_sentences = [sent for sent in sentences if is_informative(sent)]
+    return ". ".join(important_sentences)
+
+def is_informative(sentence: str) -> bool:
+    """
+    Determine if a sentence is informative or just filler.
+
+    Args:
+        sentence (str): A sentence to evaluate.
+
+    Returns:
+        bool: True if the sentence is relevant, False otherwise.
+    """
+    filler_phrases = ["In conclusion", "As mentioned", "To summarize"]
+    return not any(phrase in sentence for phrase in filler_phrases)
+
+
+def generate_summary_with_keywords(cleaned_text: str, keywords: List[str], max_length: int = 100, min_length: int = 30) -> str:
+    """
+    Generates summaries for each text chunk, emphasizing important keywords.
+    """
+    max_chunk_length = 1024
+    chunks = [cleaned_text[i:i + max_chunk_length] for i in range(0, len(cleaned_text), max_chunk_length)]
+
+    summaries = []
+    for chunk in chunks:
+        # Include keywords to guide the summarization process
+        keyword_str = " ".join(keywords)
+        prompt = f"{chunk} Keywords: {keyword_str}"
+
+        # Use mBART to summarize with forced language token
+        forced_bos_token_id = tokenizer.lang_code_to_id.get(f"uk_XX", None)
+        summarized_chunk = summarizer(
+            prompt,
+            max_length=max_length,
+            min_length=min_length,
+            do_sample=False,
+            forced_bos_token_id=forced_bos_token_id
+        )[0]['summary_text']
+
+        summaries.append(summarized_chunk)
+
+    # Combine the summaries into one
+    full_summary = " ".join(summaries)
+    return full_summary
+
+
+def post_process_summary_kw(summary: str, keywords: List[str], original_text: str) -> str:
+    """
+    Ensures the generated summary includes the most important keywords.
+    """
+    missing_keywords = [keyword for keyword in keywords if keyword not in summary]
+
+    if missing_keywords:
+        # Add relevant sentences from the original text to cover missing keywords
+        for keyword in missing_keywords:
+            keyword_sentence = next((sentence for sentence in original_text.split('. ') if keyword in sentence), "")
+            if keyword_sentence:
+                summary += f" {keyword_sentence}."
+
+    return summary
+
+
+
+
